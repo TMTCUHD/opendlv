@@ -59,6 +59,14 @@ clean:
 ###############################################################################
 
 # This target creates a Docker image to compile the OpenDLV source tree.
+create-builder-arm:
+	cd builder.arm && docker build -f Dockerfile -t $(REPOSITORY)/$(PRODUCT)-arm:$(VERSION) . | tee $(BUILDLOG) || exit 1
+	docker images | grep $$(tail -1 builder.arm/$(BUILDLOG) | cut -f3 -d" ") | grep "latest" && exit 0 || docker tag $$(tail -1 builder.arm/$(BUILDLOG) | cut -f3 -d" ") $(REPOSITORY)/$(PRODUCT)-arm:latest
+
+###############################################################################
+###############################################################################
+
+# This target creates a Docker image to compile the OpenDLV source tree.
 create-builder:
 	cd builder && docker build -f Dockerfile -t $(REPOSITORY)/$(PRODUCT):$(VERSION) . | tee $(BUILDLOG) || exit 1
 	docker images | grep $$(tail -1 builder/$(BUILDLOG) | cut -f3 -d" ") | grep "latest" && exit 0 || docker tag $$(tail -1 builder/$(BUILDLOG) | cut -f3 -d" ") $(REPOSITORY)/$(PRODUCT):latest
@@ -73,6 +81,13 @@ build-fresh: create-builder
 # This tartget compiles the OpenDLV source tree in case of minor changes to code/system.
 build-incremental: create-builder
 	docker run --rm=true -ti -v $(OPENDLV_HOST_PATH):/opt/opendlv-sources $(REPOSITORY)/$(PRODUCT):$(VERSION) /build.sh INCREMENTAL
+
+###############################################################################
+###############################################################################
+
+# This target compiles the OpenDLV source tree from scratch.
+build-fresh-arm: create-builder-arm
+	docker run --rm=true -ti -v $(OPENDLV_HOST_PATH):/opt/opendlv-sources $(REPOSITORY)/$(PRODUCT)-arm:$(VERSION) /build.sh FRESH
 
 ###############################################################################
 ###############################################################################

@@ -64,7 +64,9 @@ include(FindodDataStructureGenerator REQUIRED)
 
 ###########################################################################
 # Find odCANDataStructureGenerator.
-include(FindodCANDataStructureGenerator REQUIRED)
+if(NOT("${DISABLE_CAN}" STREQUAL "YES"))
+  include(FindodCANDataStructureGenerator REQUIRED)
+endif()
 
 ###########################################################################
 # Find OpenDaVINCI.
